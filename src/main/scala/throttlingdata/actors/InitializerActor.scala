@@ -60,7 +60,7 @@ class InitializerActor(slaService: SlaService) extends ImplicitActor {
           logger.info(s"Counter by token = $token exists")
         case None =>
           val slaRequestRef =
-            actorSystem.actorOf(Props(new SlaRequestActor(slaService)))
+            context.actorOf(Props(new SlaRequestActor(slaService)))
           requests += (token -> slaRequestRef)
           slaRequestRef ! GetSlaDataByToken(token)
       }
@@ -69,7 +69,7 @@ class InitializerActor(slaService: SlaService) extends ImplicitActor {
       logger.info(s"Create rps counter for token = $token and name = ${sla.user}")
       val counterRef = context.actorOf(
         name = sla.user,
-        props = Props(new UserRpsCounterActor(sla.rps, sla.user))
+        props = Props(new RpsCounterUserActor(sla.rps, sla.user))
       )
       (resolverNameActorRef ? RegisterCounterByName(sla.user, counterRef))
         .mapTo[ResolverNameRegisterResponse].map {

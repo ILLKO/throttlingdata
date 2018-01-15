@@ -9,7 +9,7 @@ import scala.util.{Failure, Success}
 
 object RpsServiceActor {
   sealed trait RpsServiceActorRequest
-  case class IsAllowedByTokenRequest(token: Option[String]) extends RpsServiceActorRequest
+  case class IsAllowedByTokenRequest(token: Option[String], millis: Long) extends RpsServiceActorRequest
 
   sealed trait RpsServiceActorInitRequest
   case class StartInit() extends RpsServiceActorInitRequest
@@ -116,7 +116,7 @@ class RpsServiceActor(graceRps: Int, slaService: SlaService) extends ImplicitAct
           logger.info("unauth counter not exists")
           val unauthorizedActorRef = actorSystem.actorOf(
             name = ThrottlingDataConf.unauthorizedActorName,
-            props = Props(new UnauthorizedRpsCounterActor(graceRps))
+            props = Props(new RpsCounterUnauthorizedActor(graceRps))
           )
           requester ! UnauthorizedReady(unauthorizedActorRef)
       }
@@ -128,7 +128,7 @@ class RpsServiceActor(graceRps: Int, slaService: SlaService) extends ImplicitAct
 
   def receiveMain: Receive = {
 
-    case IsAllowedByTokenRequest(tokenOption) =>
+    case IsAllowedByTokenRequest(tokenOption, millis) =>
       val requester = sender
       logger.info(s"IsAllowedByTokenRequest tokenOption = $tokenOption. sender = $requester")
       tokenOption match {
@@ -138,23 +138,23 @@ class RpsServiceActor(graceRps: Int, slaService: SlaService) extends ImplicitAct
               (resolverNameActorRef ? ResolveCounterByName(name)).mapTo[ResolverNameActorResponse].map {
                 case ResolveCounterRef(counterActorRef) =>
                   logger.info("exists counter actor for " + name)
-                  askCounter(counterActorRef, requester)
+                  askCounter(millis, counterActorRef, requester)
                 case NoCounterRef() =>
                   logger.info("unauth yet")
-                  askCounter(unauthorizedActorRef, requester)
+                  askCounter(millis, unauthorizedActorRef, requester)
               }
             case ResolvedUnauthorizedYet() =>
               logger.info("unauth yet")
-              askCounter(unauthorizedActorRef, requester)
+              askCounter(millis, unauthorizedActorRef, requester)
           }
         case None =>
           logger.info("unauth")
-          askCounter(unauthorizedActorRef, requester)
+          askCounter(millis, unauthorizedActorRef, requester)
       }
   }
 
-  def askCounter(counterActorRef: ActorRef, requester: ActorRef): Unit = {
-    (counterActorRef ? IsAllowedRequest()).mapTo[RpsCounterActorResponse].map {
+  def askCounter(millis: Long, counterActorRef: ActorRef, requester: ActorRef): Unit = {
+    (counterActorRef ? IsAllowedRequest(millis)).mapTo[RpsCounterActorResponse].map {
       case IsAllowedResponse(result) =>
         logger.info(s"counter response result $result")
         requester ! IsAllowedByTokenResponse(result)

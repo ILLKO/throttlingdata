@@ -24,8 +24,10 @@ class ThrottlingDataService(slaServiceImpl: SlaService)
   // TODO init before first call
   rpsActorRef ! StartInit()
 
-  def rpsCounterActorCall(token: Option[String]): Future[Boolean] =
-    (rpsActorRef ? IsAllowedByTokenRequest(token))
+  def rpsCounterActorCall(token: Option[String]): Future[Boolean] = {
+    val millis =
+      System.currentTimeMillis()
+    (rpsActorRef ? IsAllowedByTokenRequest(token, millis))
       .mapTo[RpsServiceActorResponse]
       .map {
         case IsAllowedByTokenResponse(value) =>
@@ -38,6 +40,7 @@ class ThrottlingDataService(slaServiceImpl: SlaService)
           throw new IllegalStateException(
             "Unhandled response for ThrottlingDataService.isRequestAllowed")
       }
+  }
 
   override def isRequestAllowed(token: Option[String]): Boolean = {
     Await.result(rpsCounterActorCall(token), timeout.duration)
