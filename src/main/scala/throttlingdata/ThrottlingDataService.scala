@@ -3,6 +3,7 @@ package throttlingdata
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+import throttlingdata.actors.RpsServiceActor
 import throttlingdata.service.{SlaService, ThrottlingService}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -12,22 +13,21 @@ class ThrottlingDataService(slaServiceImpl: SlaService)
                             implicit val executionContext: ExecutionContext,
                             implicit val timeout: Timeout) extends ThrottlingService {
 
-  import throttlingdata.actors.RpsServiceActor
   import throttlingdata.actors.RpsServiceActor._
 
   override val graceRps: Int = ThrottlingDataConf.graceRps
   override val slaService: SlaService = slaServiceImpl
 
-  val rpsActorRef: ActorRef =
+  val rpsServiceActorRef: ActorRef =
     system.actorOf(Props(new RpsServiceActor(graceRps, slaService)))
 
   // TODO init before first call
-  rpsActorRef ! StartInit()
+  rpsServiceActorRef ! RpsServiceInit()
 
   def rpsCounterActorCall(token: Option[String]): Future[Boolean] = {
     val millis =
       System.currentTimeMillis()
-    (rpsActorRef ? IsAllowedByTokenRequest(token, millis))
+    (rpsServiceActorRef ? IsAllowedByTokenRequest(token, millis))
       .mapTo[RpsServiceActorResponse]
       .map {
         case IsAllowedByTokenResponse(value) =>

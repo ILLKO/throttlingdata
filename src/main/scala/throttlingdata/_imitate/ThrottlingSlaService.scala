@@ -1,4 +1,4 @@
-package throttlingdata
+package throttlingdata._imitate
 
 import throttlingdata.model.Sla
 import throttlingdata.service.SlaService

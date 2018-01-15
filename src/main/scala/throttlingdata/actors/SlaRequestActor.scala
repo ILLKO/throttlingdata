@@ -1,6 +1,7 @@
 package throttlingdata.actors
 
 import akka.actor.PoisonPill
+import throttlingdata.actors.common.ImplicitActor
 import throttlingdata.model.Sla
 import throttlingdata.service.SlaService
 
@@ -10,9 +11,6 @@ import scala.util.{Failure, Success}
 object SlaRequestActor {
   sealed trait SlaRequestActorRequest
   case class GetSlaDataByToken(token: String) extends SlaRequestActorRequest
-
-  sealed trait SlaRequestActorResponse
-  case class SlaDataByToken(token: String) extends SlaRequestActorResponse
 }
 class SlaRequestActor(slaService: SlaService) extends ImplicitActor {
 
@@ -29,7 +27,7 @@ class SlaRequestActor(slaService: SlaService) extends ImplicitActor {
       slaFuture.onComplete {
         case Success(sla) =>
           logger.info(s"successfully receive sla data for token = $token")
-          requester ! CreateRpsCounter(token, sla)
+          requester ! CreateRpsCounterForSla(token, sla)
           self ! PoisonPill
         case Failure(ex) =>
           logger.info(s"error when call sla service for token = $token, message = ${ex.getMessage}")

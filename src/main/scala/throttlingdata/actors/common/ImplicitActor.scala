@@ -1,11 +1,11 @@
-package throttlingdata.actors
+package throttlingdata.actors.common
 
-import akka.actor.{Actor, ActorSelection}
+import akka.actor.Actor
 import akka.event.Logging
 import akka.util.Timeout
+import throttlingdata.ThrottlingDataConf
 
 import scala.concurrent.duration._
-import throttlingdata.ThrottlingDataConf
 
 trait ImplicitActor extends Actor {
 

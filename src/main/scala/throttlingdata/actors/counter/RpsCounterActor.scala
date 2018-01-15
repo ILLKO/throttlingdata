@@ -1,6 +1,7 @@
-package throttlingdata.actors
+package throttlingdata.actors.counter
 
 import throttlingdata.ThrottlingDataConf
+import throttlingdata.actors.common.ImplicitActor
 
 import scala.collection.mutable
 
@@ -18,8 +19,8 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
   val CHECK_TIME: Long = 1000 * ThrottlingDataConf.secondsCheckSize
   val DELTA_TIME: Long = 100 * ThrottlingDataConf.secondsCheckSize
 
-  var checkQueue: mutable.Queue[Long] = mutable.Queue.empty
-  var deltaQueue: mutable.Queue[Long] = mutable.Queue.empty
+  var checkTimeQueue: mutable.Queue[Long] = mutable.Queue.empty
+  var deltaTimeQueue: mutable.Queue[Long] = mutable.Queue.empty
   var fixedTimestampOpt: Option[Long] = None
 
   def countLastSec(queue: mutable.Queue[Long],
@@ -52,12 +53,12 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       logger.info(s"IsAllowedRequest maxRpsAllowed = $maxRpsAllowed")
 
       val countLastPerDelta =
-        countLastSec(deltaQueue, DELTA_TIME, millis)
+        countLastSec(deltaTimeQueue, DELTA_TIME, millis)
 
       logger.info(s"IsAllowedRequest countLastPerDelta = $countLastPerDelta")
 
       if (maxRpsAllowed <= countLastPerDelta) {
-        fixedTimestampOpt = deltaQueue.get(0)
+        fixedTimestampOpt = deltaTimeQueue.get(0)
       }
       val rpsAllowed = fixedTimestampOpt match {
         case None =>
@@ -74,7 +75,7 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       logger.info(s"IsAllowedRequest rpsAllowed = $rpsAllowed")
 
       val countLastPerCheck =
-        countLastSec(checkQueue, CHECK_TIME, millis)
+        countLastSec(checkTimeQueue, CHECK_TIME, millis)
 
       logger.info(s"IsAllowedRequest countLastPerCheck = $countLastPerCheck")
 

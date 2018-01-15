@@ -1,4 +1,4 @@
-package throttlingdata.actors
+package throttlingdata.actors.counter
 
 class RpsCounterUnauthorizedActor(maxRpsAllowed: Int) extends RpsCounterActor(maxRpsAllowed) {
 

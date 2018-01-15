@@ -16,8 +16,12 @@ object ThrottlingDataConf {
 
   lazy val graceRps: Int = config.getInt("app.graceRps")
   lazy val secondsCheckSize: Int = config.getInt("app.secondsCheckSize")
-  lazy val resolverTokenActorName: String = config.getString("app.resolverTokenActorName")
-  lazy val resolverNameActorName: String = config.getString("app.resolverNameActorName")
-  lazy val initializerActorName: String = config.getString("app.initializerActorName")
-  lazy val unauthorizedActorName: String = config.getString("app.unauthorizedActorName")
+  lazy val registryNameByTokenActorName: String =
+    config.getString("app.registryNameByTokenActorName")
+  lazy val registryCounterByNameActorName: String =
+    config.getString("app.registryCounterByNameActorName")
+  lazy val initializerActorName: String =
+    config.getString("app.initializerActorName")
+  lazy val unauthorizedActorName: String =
+    config.getString("app.unauthorizedActorName")
 }
