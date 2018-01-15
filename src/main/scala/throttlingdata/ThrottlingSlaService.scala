@@ -8,6 +8,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class ThrottlingSlaService(implicit executionContext: ExecutionContext) extends SlaService {
 
   def getSlaByToken(token: String): Future[Sla] = {
+
+    println(s"getSlaByToken - $token")
+
     token match {
       case "111" =>
         Future { Sla("username_111", 10) }

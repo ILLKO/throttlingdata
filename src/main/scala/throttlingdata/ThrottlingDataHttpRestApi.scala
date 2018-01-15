@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
-import throttlingdata.actors.{InitializerActor, ResolverActor}
+import throttlingdata.actors.{InitializerActor, ResolverTokenActor}
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -23,22 +23,20 @@ trait ThrottlingDataHttpRestApi {
   implicit def system: ActorSystem
   implicit def timeout: Timeout
 
-  val slaService =
-    new ThrottlingSlaService()
-  lazy val throttlingService1 =
-    new ThrottlingDataService(slaService, system, executionContext, timeout)
-  lazy val throttlingService2 =
-    new ThrottlingDataService(slaService, system, executionContext, timeout)
+//  val slaService =
+//    new ThrottlingSlaService()
+  lazy val throttlingService =
+    new ThrottlingDataService(new ThrottlingSlaService())
 
   lazy val citiesRoute: Route =
     pathPrefix("throttlingdata" / "endpoint") {
       extractRequest { httpRequest =>
         val token = extractToken(httpRequest)
         get {
-          complete("get with " + token + " " + throttlingService1.isRequestAllowed(token))
+          complete("get with " + token + " " + throttlingService.isRequestAllowed(token))
         } ~
           post {
-            complete("post with " + token + " " + throttlingService2.isRequestAllowed(token))
+            complete("post with " + token + " " + throttlingService.isRequestAllowed(token))
           }
       }
     }

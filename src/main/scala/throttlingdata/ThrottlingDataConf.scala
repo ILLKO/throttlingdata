@@ -14,12 +14,10 @@ object ThrottlingDataConf {
   lazy val loggingActorName: String =
     config.getString("akka.loggingActorName")
 
-  lazy val graceRps: Int =
-    config.getInt("app.graceRps")
-  lazy val resolverActorName: String =
-    config.getString("app.resolverActorName")
-  lazy val initializerActorName: String =
-    config.getString("app.initializerActorName")
-  lazy val unauthorizedActorName: String =
-    config.getString("app.unauthorizedActorName")
+  lazy val graceRps: Int = config.getInt("app.graceRps")
+  lazy val secondsCheckSize: Int = config.getInt("app.secondsCheckSize")
+  lazy val resolverTokenActorName: String = config.getString("app.resolverTokenActorName")
+  lazy val resolverNameActorName: String = config.getString("app.resolverNameActorName")
+  lazy val initializerActorName: String = config.getString("app.initializerActorName")
+  lazy val unauthorizedActorName: String = config.getString("app.unauthorizedActorName")
 }
