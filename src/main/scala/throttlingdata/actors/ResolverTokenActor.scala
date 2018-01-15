@@ -27,6 +27,7 @@ class ResolverTokenActor extends ImplicitActor {
   import ResolverTokenActor._
   import InitializerActor._
 
+  // TODO remove old
   var tokens: mutable.Map[String, String] = mutable.Map.empty
 
   var initializerActorRef: ActorRef = _
@@ -56,16 +57,6 @@ class ResolverTokenActor extends ImplicitActor {
           sender ! ResolvedUnauthorizedYet()
           initializerActorRef ! CreateCounterByToken(token)
       }
-
-//    case ResolveNameByToken(token) =>
-//      tokens.get(token) match {
-//        case Some(name) =>
-//          logger.info(s"resolve name $name by token $token")
-//          sender ! ResolvedNameByToken(Some(name))
-//        case None =>
-//          logger.info(s"no any name by token $token")
-//          sender ! ResolvedNameByToken(None)
-//      }
 
     case RegisterNameByToken(token, name) =>
       logger.info(s"register counter with name $name for token $token")

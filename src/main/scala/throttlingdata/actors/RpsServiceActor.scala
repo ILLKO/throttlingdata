@@ -143,14 +143,6 @@ class RpsServiceActor(graceRps: Int, slaService: SlaService) extends ImplicitAct
                   logger.info("unauth yet")
                   askCounter(unauthorizedActorRef, requester)
               }
-//              context.actorSelection(ThrottlingDataConf.initializerActorName + "/" + name).resolveOne().onComplete {
-//                case Success(counterActorRef) =>
-//                  logger.info("exists counter actor for " + name)
-//                  askCounter(counterActorRef, requester)
-//                case Failure(ex) =>
-//                  logger.info("not exists counter actor for " + name)
-//                  requester ! IsAllowedErrorResponse(ex.getMessage)
-//              }
             case ResolvedUnauthorizedYet() =>
               logger.info("unauth yet")
               askCounter(unauthorizedActorRef, requester)

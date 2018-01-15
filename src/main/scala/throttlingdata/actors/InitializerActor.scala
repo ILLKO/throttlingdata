@@ -90,33 +90,5 @@ class InitializerActor(slaService: SlaService) extends ImplicitActor {
     case CreateRpsCounterError(token, message) =>
       logger.info(s"Error for getting sla for token = $token")
       requests.remove(token)
-
-//      (resolverTokenActorRef ? ResolveNameByToken(token)).mapTo[ResolverTokenActorNameExistsResponse].map {
-//        case ResolvedNameByToken(nameOption) =>
-//          nameOption match {
-//            case Some(name) =>
-//              logger.info(s"init new counter, counter already created for token = $token with name = $name")
-//            case None =>
-//              logger.info(s"init new counter, for token = $token")
-//              val slaFuture: Future[Sla] =
-//                slaService.getSlaByToken(token)
-//              logger.info(s"slaFuture => $slaFuture")
-//              val sla = Sla("user_111", 2)
-//              slaFuture.onComplete {
-//                case Success(sla) =>
-//                  logger.info(s"slaFuture complete, sla user = ${sla.user}, rps = ${sla.rps}")
-                  //requester ! CounterByNameActorRef(
-//                  val actorRef = context.actorOf(
-//                    name = sla.user,
-//                    props = Props(new UserRpsCounterActor(sla.rps, sla.user))
-//                  )
-//                  logger.info(s"actorRef new counter = $actorRef")
-                  //)
-//                  resolverTokenActorRef ! RegisterNameByToken(token, sla.user)
-//                case Failure(ex) =>
-//                  logger.info("exception when call sla: " + ex.getMessage)
-//              }
-//          }
-//      }
   }
 }

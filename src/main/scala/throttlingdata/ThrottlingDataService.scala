@@ -6,7 +6,6 @@ import akka.util.Timeout
 import throttlingdata.service.{SlaService, ThrottlingService}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class ThrottlingDataService(slaServiceImpl: SlaService)
                            (implicit val system: ActorSystem,
@@ -21,6 +20,8 @@ class ThrottlingDataService(slaServiceImpl: SlaService)
 
   val rpsActorRef: ActorRef =
     system.actorOf(Props(new RpsServiceActor(graceRps, slaService)))
+
+  // TODO init before first call
   rpsActorRef ! StartInit()
 
   def rpsCounterActorCall(token: Option[String]): Future[Boolean] =

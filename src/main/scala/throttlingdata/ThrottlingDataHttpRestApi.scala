@@ -1,14 +1,12 @@
 package throttlingdata
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
-import throttlingdata.actors.{InitializerActor, ResolverTokenActor}
 
 import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success}
 
 trait ThrottlingDataHttpRestApi {
 
@@ -23,8 +21,6 @@ trait ThrottlingDataHttpRestApi {
   implicit def system: ActorSystem
   implicit def timeout: Timeout
 
-//  val slaService =
-//    new ThrottlingSlaService()
   lazy val throttlingService =
     new ThrottlingDataService(new ThrottlingSlaService())
 

@@ -26,6 +26,7 @@ class ResolverNameActor extends ImplicitActor {
   import ResolverNameActor._
   import InitializerActor._
 
+  // TODO remove old
   var counters: mutable.Map[String, ActorRef] = mutable.Map.empty
 
   var initializerActorRef: ActorRef = _

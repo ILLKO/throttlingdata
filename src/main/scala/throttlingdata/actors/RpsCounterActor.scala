@@ -15,7 +15,8 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
 
   import RpsCounterActor._
 
-  val DELTA_TIME: Long = 1000 * ThrottlingDataConf.secondsCheckSize
+  val CHECK_TIME: Long = 1000 * ThrottlingDataConf.secondsCheckSize
+  val DELTA_TIME: Long = 100 * ThrottlingDataConf.secondsCheckSize
 
   var queue: mutable.Queue[Long] = mutable.Queue.empty
 
@@ -33,7 +34,7 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
     }
     logger.info("countLastSec millis " + millis)
     queue.enqueue(millis)
-    cutOld(millis - DELTA_TIME)
+    cutOld(millis - CHECK_TIME)
     logger.info("countLastSec size " + queue.size)
     queue.size
   }
@@ -52,12 +53,4 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
         maxRpsAllowed >= countLastSec(millis)
       )
   }
-}
-class UnauthorizedRpsCounterActor(maxRpsAllowed: Int) extends RpsCounterActor(maxRpsAllowed) {
-
-  def getPath: String = "unauthorized"
-}
-class UserRpsCounterActor(maxRpsAllowed: Int, user: String) extends RpsCounterActor(maxRpsAllowed) {
-
-  def getPath: String = user
 }
