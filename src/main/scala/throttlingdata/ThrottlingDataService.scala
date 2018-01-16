@@ -3,7 +3,7 @@ package throttlingdata
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
-import throttlingdata.actors.RpsServiceActor
+import throttlingdata.actors.root.RpsServiceActor
 import throttlingdata.service.{SlaService, ThrottlingService}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -13,7 +13,7 @@ class ThrottlingDataService(slaServiceImpl: SlaService)
                             implicit val executionContext: ExecutionContext,
                             implicit val timeout: Timeout) extends ThrottlingService {
 
-  import throttlingdata.actors.RpsServiceActor._
+  import throttlingdata.actors.root.RpsServiceActor._
 
   override val graceRps: Int = ThrottlingDataConf.graceRps
   override val slaService: SlaService = slaServiceImpl

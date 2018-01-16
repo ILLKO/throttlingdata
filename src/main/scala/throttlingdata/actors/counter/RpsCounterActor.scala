@@ -18,21 +18,22 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
 
   val CHECK_TIME: Long = 1000 * ThrottlingDataConf.secondsCheckSize
   val DELTA_TIME: Long = 100 * ThrottlingDataConf.secondsCheckSize
+  assume(CHECK_TIME > DELTA_TIME)
 
   var checkTimeQueue: mutable.Queue[Long] = mutable.Queue.empty
   var deltaTimeQueue: mutable.Queue[Long] = mutable.Queue.empty
   var fixedTimestampOpt: Option[Long] = None
 
-  def countLastSec(queue: mutable.Queue[Long],
-                   perTime: Long,
-                   millis: Long): Int = {
+  def countInLastTime(queue: mutable.Queue[Long],
+                      perTime: Long,
+                      millis: Long): Int = {
 
-    def cutOld(cut_millis: Long): Unit = {
+    def cutOld(cutMillis: Long): Unit = {
       queue.get(0) match {
         case Some(value) =>
-          if (value < cut_millis) {
+          if (value < cutMillis) {
             queue.dequeue()
-            cutOld(cut_millis)
+            cutOld(cutMillis)
           }
         case None =>
       }
@@ -52,12 +53,12 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       logger.info(s"IsAllowedRequest millis = $millis")
       logger.info(s"IsAllowedRequest maxRpsAllowed = $maxRpsAllowed")
 
-      val countLastPerDelta =
-        countLastSec(deltaTimeQueue, DELTA_TIME, millis)
+      val countPerDelta =
+        countInLastTime(deltaTimeQueue, DELTA_TIME, millis)
 
-      logger.info(s"IsAllowedRequest countLastPerDelta = $countLastPerDelta")
+      logger.info(s"IsAllowedRequest countLastPerDelta = $countPerDelta")
 
-      if (maxRpsAllowed <= countLastPerDelta) {
+      if (maxRpsAllowed <= countPerDelta) {
         fixedTimestampOpt = deltaTimeQueue.get(0)
       }
       val rpsAllowed = fixedTimestampOpt match {
@@ -74,13 +75,13 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
 
       logger.info(s"IsAllowedRequest rpsAllowed = $rpsAllowed")
 
-      val countLastPerCheck =
-        countLastSec(checkTimeQueue, CHECK_TIME, millis)
+      val countPerCheck =
+        countInLastTime(checkTimeQueue, CHECK_TIME, millis)
 
-      logger.info(s"IsAllowedRequest countLastPerCheck = $countLastPerCheck")
+      logger.info(s"IsAllowedRequest countLastPerCheck = $countPerCheck")
 
       sender ! IsAllowedResponse(
-        rpsAllowed >= countLastPerCheck
+        rpsAllowed >= countPerCheck
       )
   }
 }

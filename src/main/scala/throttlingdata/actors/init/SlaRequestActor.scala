@@ -1,4 +1,4 @@
-package throttlingdata.actors
+package throttlingdata.actors.init
 
 import akka.actor.PoisonPill
 import throttlingdata.actors.common.ImplicitActor
@@ -14,8 +14,8 @@ object SlaRequestActor {
 }
 class SlaRequestActor(slaService: SlaService) extends ImplicitActor {
 
-  import SlaRequestActor._
   import InitializerActor._
+  import SlaRequestActor._
 
   override def receive: Receive = {
 

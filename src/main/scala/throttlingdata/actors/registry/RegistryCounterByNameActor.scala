@@ -1,6 +1,6 @@
 package throttlingdata.actors.registry
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, PoisonPill}
 import throttlingdata.actors.common.ImplicitActor
 
 import scala.collection.mutable
@@ -9,7 +9,6 @@ object RegistryCounterByNameActor {
   sealed trait ResolveNameRequest
   case class ResolveCounterByName(name: String) extends ResolveNameRequest
   case class RegisterCounterByName(name: String, counterActorRef: ActorRef) extends ResolveNameRequest
-
   case class RegistryCounterInit(initializerRef: ActorRef) extends ResolveNameRequest
 
   sealed trait ResolveNameResponse
@@ -18,16 +17,17 @@ object RegistryCounterByNameActor {
 
   sealed trait RegisterCounterResponse
   case class CounterRegisteredSuccessfully() extends RegisterCounterResponse
-  case class CounterAlreadyExists() extends RegisterCounterResponse
 
   sealed trait RegistryCounterInitResponse
-  case class RegistryCounterInited() extends RegistryCounterInitResponse
+  case class RegistryCounterInitDone() extends RegistryCounterInitResponse
 }
 class RegistryCounterByNameActor extends ImplicitActor {
 
   import RegistryCounterByNameActor._
 
-  // TODO remove old
+  // TODO remove old name+ref
+  // (consider create registry actor by the name which know all his tokens - and can remove all tokens and itself)
+
   var countersByName: mutable.Map[String, ActorRef] = mutable.Map.empty
 
   var initializerActorRef: ActorRef = _
@@ -39,7 +39,7 @@ class RegistryCounterByNameActor extends ImplicitActor {
     case RegistryCounterInit(initializerRef) =>
       initializerActorRef = initializerRef
       context become receiveMain
-      sender ! RegistryCounterInited()
+      sender ! RegistryCounterInitDone()
 
     case message =>
       self ! message
@@ -60,13 +60,14 @@ class RegistryCounterByNameActor extends ImplicitActor {
     case RegisterCounterByName(name, counterActorRef) =>
       logger.info(s"register counter with name $name")
       countersByName.get(name) match {
-        case Some(_) =>
-          sender ! CounterAlreadyExists()
-          logger.info(s"already exists counter for name $name")
+        case Some(oldCounterActorRef) =>
+          countersByName += (name -> counterActorRef)
+          oldCounterActorRef ! PoisonPill
+          logger.info(s"registered new counter for name $name")
         case None =>
           countersByName += (name -> counterActorRef)
-          sender ! CounterRegisteredSuccessfully()
           logger.info(s"registered counter for name $name")
       }
+      sender ! CounterRegisteredSuccessfully()
   }
 }

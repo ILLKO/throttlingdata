@@ -12,8 +12,13 @@ class ThrottlingSlaService(implicit executionContext: ExecutionContext) extends 
     println(s"getSlaByToken - $token")
 
     token match {
-      case "111" =>
+      case "1" =>
+        Future { Sla("username_111", 12) }
+      case "11" =>
         Future { Sla("username_111", 10) }
+      case "111" =>
+        Future { Sla("username_111", 11) }
+
       case "222" =>
         Future { Sla("username_222", 2) }
       case "333" =>
