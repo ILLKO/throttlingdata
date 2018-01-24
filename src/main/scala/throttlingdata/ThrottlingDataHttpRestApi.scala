@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
-import throttlingdata._imitate.ThrottlingSlaService
+import throttlingdata.service.impl.{ThrottlingDataService, ThrottlingSlaService}
 
 import scala.concurrent.ExecutionContext
 

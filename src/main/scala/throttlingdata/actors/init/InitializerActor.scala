@@ -45,7 +45,7 @@ class InitializerActor(slaService: SlaService) extends ImplicitActor {
       sender ! InitializerActorInited()
 
     case message =>
-      self ! message
+      logger.info(s"Message in InitializerActor before init done: $message")
   }
 
   def receiveMain: Receive = {

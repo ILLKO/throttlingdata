@@ -42,7 +42,7 @@ class RegistryCounterByNameActor extends ImplicitActor {
       sender ! RegistryCounterInitDone()
 
     case message =>
-      self ! message
+      logger.info(s"Message in RegistryCounterByNameActor before init done: $message")
   }
 
   def receiveMain: Receive = {

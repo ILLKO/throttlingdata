@@ -77,6 +77,7 @@ class RpsServiceActor(graceRps: Int, slaService: SlaService) extends ImplicitAct
 
     case RpsServiceInit() =>
       val requester = self
+      logger.info("RpsServiceInit message")
       val registryNameByTokenRef =
         actorSystem.actorOf(
           props = Props(new RegistryNameByTokenActor()),
@@ -112,10 +113,12 @@ class RpsServiceActor(graceRps: Int, slaService: SlaService) extends ImplicitAct
         }
 
     case message =>
-      self ! message
+      logger.info(s"Message in RpsServiceActor before init done: $message")
   }
 
   def receiveMain: Receive = {
+
+    // TODO broadcast call to 10 subactors
 
     case IsAllowedByTokenRequest(tokenOption, millis) =>
       val requester = sender

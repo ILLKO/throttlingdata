@@ -43,7 +43,7 @@ class RegistryNameByTokenActor extends ImplicitActor {
       sender ! RegistryNameInitDone()
 
     case message =>
-      self ! message
+      logger.info(s"Message in RegistryNameByTokenActor before init done: $message")
   }
 
   def receiveMain: Receive = {

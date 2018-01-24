@@ -1,8 +1,9 @@
-package throttlingdata
+package throttlingdata.service.impl
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
+import throttlingdata.ThrottlingDataConf
 import throttlingdata.actors.root.RpsServiceActor
 import throttlingdata.service.{SlaService, ThrottlingService}
 

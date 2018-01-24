@@ -38,7 +38,6 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
         case None =>
       }
     }
-    queue.enqueue(millis)
     cutOld(millis - perTime)
     queue.size
   }
@@ -54,9 +53,10 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       logger.info(s"IsAllowedRequest maxRpsAllowed = $maxRpsAllowed")
 
       val countPerDelta =
-        countInLastTime(deltaTimeQueue, DELTA_TIME, millis)
+        1 + countInLastTime(deltaTimeQueue, DELTA_TIME, millis)
 
       logger.info(s"IsAllowedRequest countLastPerDelta = $countPerDelta")
+      logger.info(s"deltaTimeQueue == $deltaTimeQueue")
 
       if (maxRpsAllowed <= countPerDelta) {
         fixedTimestampOpt = deltaTimeQueue.get(0)
@@ -76,12 +76,19 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       logger.info(s"IsAllowedRequest rpsAllowed = $rpsAllowed")
 
       val countPerCheck =
-        countInLastTime(checkTimeQueue, CHECK_TIME, millis)
+        1 + countInLastTime(checkTimeQueue, CHECK_TIME, millis)
 
       logger.info(s"IsAllowedRequest countLastPerCheck = $countPerCheck")
+      logger.info(s"checkTimeQueue == $checkTimeQueue")
 
-      sender ! IsAllowedResponse(
+      val isAllowed =
         rpsAllowed >= countPerCheck
-      )
+
+      sender ! IsAllowedResponse(isAllowed)
+
+      if (isAllowed) {
+        deltaTimeQueue.enqueue(millis)
+        checkTimeQueue.enqueue(millis)
+      }
   }
 }
