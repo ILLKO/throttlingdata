@@ -18,7 +18,7 @@ class RpsServiceActorLoadSpec(_system: ActorSystem) extends TestKit(_system)
     shutdown(system)
   }
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(ThrottlingDataConf.requestTimeout seconds)
   implicit val executionContext = system.dispatcher
 
   import ServiceCall._
@@ -48,7 +48,7 @@ class RpsServiceActorLoadSpec(_system: ActorSystem) extends TestKit(_system)
 
       serviceResult ! CleanResult()
 
-      val timestamp = 0//System.currentTimeMillis()
+      val timestamp = System.currentTimeMillis()
 
       println(s"Load test, start timestamp = $timestamp")
 

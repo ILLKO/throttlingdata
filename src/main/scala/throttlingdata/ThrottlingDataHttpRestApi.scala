@@ -30,10 +30,12 @@ trait ThrottlingDataHttpRestApi {
       extractRequest { httpRequest =>
         val token = extractToken(httpRequest)
         get {
-          complete("get with " + token + " " + throttlingService.isRequestAllowed(token))
+          complete("get with " + token + ", " +
+            "allowed = " + throttlingService.isRequestAllowed(token))
         } ~
           post {
-            complete("post with " + token + " " + throttlingService.isRequestAllowed(token))
+            complete("post with " + token + ", " +
+              "allowed = " + throttlingService.isRequestAllowed(token))
           }
       }
     }

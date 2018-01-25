@@ -2,6 +2,7 @@ package throtlingdata
 
 import akka.actor.{Actor, ActorSystem}
 import akka.util.Timeout
+import throttlingdata.ThrottlingDataConf
 
 import scala.concurrent.duration._
 
@@ -14,7 +15,7 @@ class ServiceResult(system: ActorSystem) extends Actor {
   import ServiceResult._
   import ServiceCall._
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(ThrottlingDataConf.requestTimeout seconds)
   implicit val executionContext = system.dispatcher
 
   var results: List[Response] = Nil

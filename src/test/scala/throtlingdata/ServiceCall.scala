@@ -3,6 +3,7 @@ package throtlingdata
 import akka.pattern.ask
 import akka.actor.{Actor, ActorRef, ActorSystem}
 import akka.util.Timeout
+import throttlingdata.ThrottlingDataConf
 
 import scala.concurrent.duration._
 
@@ -17,7 +18,7 @@ class ServiceCall(system: ActorSystem,
   import throttlingdata.actors.root.RpsServiceActor._
   import ServiceCall._
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(ThrottlingDataConf.requestTimeout seconds)
   implicit val executionContext = system.dispatcher
 
   override def preStart(): Unit = {

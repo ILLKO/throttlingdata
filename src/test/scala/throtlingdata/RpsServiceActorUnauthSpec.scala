@@ -18,7 +18,7 @@ class RpsServiceActorUnauthSpec(_system: ActorSystem) extends TestKit(_system)
     shutdown(system)
   }
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(ThrottlingDataConf.requestTimeout seconds)
   implicit val executionContext = system.dispatcher
 
   import ServiceCall._
