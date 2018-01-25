@@ -32,7 +32,7 @@ class RpsServiceActorUnauthSpec(_system: ActorSystem) extends TestKit(_system)
       TestActorRef(
         Props(new RpsServiceActor(
           ThrottlingDataConf.graceRps,
-          new ThrottlingSlaServiceMocked()
+          new ThrottlingSlaServiceForAuthTest()
         ))
       )
     val serviceCall =
@@ -54,8 +54,8 @@ class RpsServiceActorUnauthSpec(_system: ActorSystem) extends TestKit(_system)
 
       (1 to 110).foreach {
         i => {
-          serviceCall ! Request("token_unauth_"+i, timestamp + i)
-          testProbe.expectMsg(Response("token_unauth_"+i, timestamp + i, true))
+          serviceCall ! Request("token_unauth_" + i, timestamp + i)
+          testProbe.expectMsg(Response("token_unauth_" + i, timestamp + i, true))
           testProbe.forward(serviceResult)
         }
       }
@@ -70,8 +70,8 @@ class RpsServiceActorUnauthSpec(_system: ActorSystem) extends TestKit(_system)
 
       (1200 + 1 to 1200 + 110).foreach {
         i => {
-          serviceCall ! Request("token_unauth_"+i, timestamp + i)
-          testProbe.expectMsg(Response("token_unauth_"+i, timestamp + i, true))
+          serviceCall ! Request("token_unauth_" + i, timestamp + i)
+          testProbe.expectMsg(Response("token_unauth_" + i, timestamp + i, true))
           testProbe.forward(serviceResult)
         }
       }

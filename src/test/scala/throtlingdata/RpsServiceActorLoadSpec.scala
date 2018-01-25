@@ -32,7 +32,7 @@ class RpsServiceActorLoadSpec(_system: ActorSystem) extends TestKit(_system)
       TestActorRef(
         Props(new RpsServiceActor(
           ThrottlingDataConf.graceRps,
-          new ThrottlingSlaServiceMocked()
+          new ThrottlingSlaServiceForLoadTest()
         ))
       )
     val serviceCall =
@@ -44,17 +44,73 @@ class RpsServiceActorLoadSpec(_system: ActorSystem) extends TestKit(_system)
         new ServiceResult(system)
       )
 
-    "check grace requests per second for all tokens without auth" in {
+    "check 5 ms is average time per sec for many calls" in {
 
       serviceResult ! CleanResult()
 
-      val timestamp = System.currentTimeMillis()
+      val timestamp = 0//System.currentTimeMillis()
 
       println(s"Load test, start timestamp = $timestamp")
 
-      // todo - load test + check 5 ms is average time per sec for many calls
+      val tokensSuffixAndRps = List(100, 200, 300, 400, 500)
+
+      tokensSuffixAndRps.foreach {
+        s => {
+          serviceCall ! Request("token_" + s, timestamp)
+          testProbe.expectMsg(Response("token_" + s, timestamp, true))
+          testProbe.forward(serviceResult)
+        }
+      }
+
+      Thread.sleep(100)
+
+      val timestampBefore = System.currentTimeMillis()
+
+      def callRightMore(millisDrift: Int, millisStep: Int, tokensMask: List[Int]): Unit = {
+        (millisDrift + 1 to millisDrift + millisStep).foreach {
+          i => {
+            tokensMask.foreach {
+              s => {
+                serviceCall ! Request("token_" + s, timestamp + i)
+                testProbe.expectMsg(Response("token_" + s, timestamp + i, true))
+                testProbe.forward(serviceResult)
+              }
+            }
+          }
+        }
+        tokensMask match {
+          case Nil =>
+          case h :: t =>
+            callRightMore(millisDrift + millisStep, millisStep, t)
+        }
+      }
+      callRightMore(0, 100, tokensSuffixAndRps)
+      callRightMore(700, 10, List(tokensSuffixAndRps.head))
+
+      tokensSuffixAndRps.foreach {
+        s => {
+          serviceCall ! Request("token_" + s, timestamp + 999)
+          testProbe.expectMsg(Response("token_" + s, timestamp + 999, false))
+          testProbe.forward(serviceResult)
+        }
+      }
+
+      val timestampAfter = System.currentTimeMillis()
+
+      val callCount = 500 + 400 + 300 + 200 + 110
+
+      val averageMs =
+        (timestampAfter - timestampBefore) / callCount
+
+      val isAverageMsLessThenFive =
+        averageMs < 5
+
+      println(s"average Ms per request = $averageMs")
+      println(s"is average Ms less then five = $isAverageMsLessThenFive")
 
       serviceResult ! ShowResult()
+
+      assert(isAverageMsLessThenFive)
     }
   }
 }

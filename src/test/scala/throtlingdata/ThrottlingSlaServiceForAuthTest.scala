@@ -5,7 +5,8 @@ import throttlingdata.service.SlaService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ThrottlingSlaServiceMocked(implicit executionContext: ExecutionContext) extends SlaService {
+class ThrottlingSlaServiceForAuthTest(implicit executionContext: ExecutionContext)
+  extends SlaService {
 
   def getSlaByToken(token: String): Future[Sla] = {
 
@@ -59,7 +60,7 @@ class ThrottlingSlaServiceMocked(implicit executionContext: ExecutionContext) ex
         }
 
       case _  =>
-        throw new IllegalArgumentException("No such user")
+        throw new IllegalArgumentException("No any user")
     }
   }
 }

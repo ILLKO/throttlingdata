@@ -32,7 +32,7 @@ class RpsServiceActorAuthSpec(_system: ActorSystem) extends TestKit(_system)
       TestActorRef(
         Props(new RpsServiceActor(
           ThrottlingDataConf.graceRps,
-          new ThrottlingSlaServiceMocked()
+          new ThrottlingSlaServiceForAuthTest()
         ))
       )
     val serviceCall =
