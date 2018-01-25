@@ -40,13 +40,26 @@ class ThrottlingSlaServiceMocked(implicit executionContext: ExecutionContext) ex
           Sla(name, count)
         }
 
+      case "token_0" | "token_1" | "token_2" | "token_3" =>
+        val name = "username_123"
+        val count = 12
+        println(s"founds Sla for token = $token " +
+          s"with name = $name and allowed count per seconds $count")
+        Future {
+          Sla(name, count)
+        }
 
-      case "1" =>
-        Future { Sla("username_111", 12) }
-      case "11" =>
-        Future { Sla("username_111", 10) }
-      case "111" =>
-        Future { Sla("username_111", 11) }
+      case "token_00" =>
+        val name = "username_00"
+        val count = 0
+        println(s"founds Sla for token = $token " +
+          s"with name = $name and allowed count per seconds $count")
+        Future {
+          Sla(name, count)
+        }
+
+      case _  =>
+        throw new IllegalArgumentException("No such user")
     }
   }
 }

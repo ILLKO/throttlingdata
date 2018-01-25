@@ -7,6 +7,7 @@ import scala.concurrent.duration._
 
 object ServiceResult {
   case class ShowResult()
+  case class CleanResult()
 }
 class ServiceResult(system: ActorSystem) extends Actor {
 
@@ -23,6 +24,9 @@ class ServiceResult(system: ActorSystem) extends Actor {
     case result: Response =>
       println("Result = " + result)
       results = result :: results
+
+    case CleanResult() =>
+      results = Nil
 
     case ShowResult() =>
       println("Results = " + results)

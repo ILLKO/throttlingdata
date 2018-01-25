@@ -51,24 +51,33 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       logger.info(s"IsAllowedRequest for counter $getCounterName")
       logger.info(s"IsAllowedRequest millis = $millis")
       logger.info(s"IsAllowedRequest maxRpsAllowed = $maxRpsAllowed")
+      logger.info(s"deltaTimeQueue == $deltaTimeQueue")
+      logger.info(s"fixedTimestampOpt == $fixedTimestampOpt")
 
       val countPerDelta =
         1 + countInLastTime(deltaTimeQueue, DELTA_TIME, millis)
 
       logger.info(s"IsAllowedRequest countLastPerDelta = $countPerDelta")
-      logger.info(s"deltaTimeQueue == $deltaTimeQueue")
 
+      var newFixedTimestampOpt = fixedTimestampOpt
       if (maxRpsAllowed <= countPerDelta) {
-        fixedTimestampOpt = deltaTimeQueue.get(0)
+        while (deltaTimeQueue.nonEmpty && maxRpsAllowed < 1 + deltaTimeQueue.size)
+          deltaTimeQueue.dequeue()
+        if (deltaTimeQueue.nonEmpty) {
+          newFixedTimestampOpt = deltaTimeQueue.get(0)
+        } else {
+          newFixedTimestampOpt = None
+        }
       }
-      val rpsAllowed = fixedTimestampOpt match {
+
+      val rpsAllowed = newFixedTimestampOpt match {
         case None =>
           maxRpsAllowed
         case Some(fixedTimestamp) =>
           if (fixedTimestamp + CHECK_TIME >= millis) {
             maxRpsAllowed + (maxRpsAllowed / 10)
           } else {
-            fixedTimestampOpt = None
+            newFixedTimestampOpt = None
             maxRpsAllowed
           }
       }
@@ -89,6 +98,7 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       if (isAllowed) {
         deltaTimeQueue.enqueue(millis)
         checkTimeQueue.enqueue(millis)
+        fixedTimestampOpt = newFixedTimestampOpt
       }
   }
 }
