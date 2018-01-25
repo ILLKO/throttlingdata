@@ -54,6 +54,8 @@ abstract class RpsCounterActor(maxRpsAllowed: Int) extends ImplicitActor {
       logger.info(s"deltaTimeQueue == $deltaTimeQueue")
       logger.info(s"fixedTimestampOpt == $fixedTimestampOpt")
 
+      // todo - rethink and simplify
+
       val countPerDelta =
         1 + countInLastTime(deltaTimeQueue, DELTA_TIME, millis)
 
