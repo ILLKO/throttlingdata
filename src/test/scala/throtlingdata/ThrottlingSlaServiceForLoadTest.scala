@@ -13,13 +13,10 @@ class ThrottlingSlaServiceForLoadTest(implicit executionContext: ExecutionContex
     token match {
 
       case token: String =>
-
         if (token.split("_").head != "token")
           throw new IllegalArgumentException(s"No any user for token $token")
-
         val name = "login_for_" + token
         val count = token.split("_").tail.head.toInt
-
         Future {
           Sla(name, count)
         }

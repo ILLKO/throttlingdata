@@ -23,6 +23,15 @@ class ThrottlingSlaServiceForAuthTest(implicit executionContext: ExecutionContex
           Sla(name, count)
         }
 
+      case "two_per_sec" =>
+        val name = "username_two_per_sec"
+        val count = 2
+        println(s"founds Sla for token = $token " +
+          s"with name = $name and allowed count per seconds $count")
+        Future {
+          Sla(name, count)
+        }
+
       case "three_per_sec" =>
         val name = "username_three_per_sec"
         val count = 3

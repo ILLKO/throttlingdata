@@ -78,6 +78,52 @@ class RpsServiceActorAuthSpec(_system: ActorSystem) extends TestKit(_system)
       serviceResult ! ShowResult()
     }
 
+    "check two allowed request per second with same timestamp" in {
+
+      serviceResult ! CleanResult()
+
+      val token = "two_per_sec"
+      val timestamp = System.currentTimeMillis()
+
+      println(s"Test token = $token and start timestamp = $timestamp")
+
+      serviceCall ! Request(token, timestamp)
+      testProbe.expectMsg(Response(token, timestamp, true))
+      testProbe.forward(serviceResult)
+
+      Thread.sleep(100)
+
+      serviceCall ! Request(token, timestamp + 1)
+      testProbe.expectMsg(Response(token, timestamp + 1, true))
+      testProbe.forward(serviceResult)
+
+      serviceCall ! Request(token, timestamp + 1)
+      testProbe.expectMsg(Response(token, timestamp + 1, true))
+      testProbe.forward(serviceResult)
+
+      serviceCall ! Request(token, timestamp + 500)
+      testProbe.expectMsg(Response(token, timestamp + 500, false))
+      testProbe.forward(serviceResult)
+
+      serviceCall ! Request(token, timestamp + 1001)
+      testProbe.expectMsg(Response(token, timestamp + 1001, false))
+      testProbe.forward(serviceResult)
+
+      serviceCall ! Request(token, timestamp + 1002)
+      testProbe.expectMsg(Response(token, timestamp + 1002, true))
+      testProbe.forward(serviceResult)
+
+      serviceCall ! Request(token, timestamp + 1002)
+      testProbe.expectMsg(Response(token, timestamp + 1002, true))
+      testProbe.forward(serviceResult)
+
+      serviceCall ! Request(token, timestamp + 1002)
+      testProbe.expectMsg(Response(token, timestamp + 1002, false))
+      testProbe.forward(serviceResult)
+
+      serviceResult ! ShowResult()
+    }
+
     "check three allowed requests per second" in {
 
       serviceResult ! CleanResult()
