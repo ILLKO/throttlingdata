@@ -52,7 +52,7 @@ class RpsServiceActorLoadSpec(_system: ActorSystem) extends TestKit(_system)
 
       println(s"Load test, start timestamp = $timestamp")
 
-      val tokensSuffixAndRps = List(100, 200, 300, 400, 500)
+      val tokensSuffixAndRps = List(100, 200, 300, 400, 500, 600, 700, 800, 900)
 
       tokensSuffixAndRps.foreach {
         s => {
@@ -85,7 +85,7 @@ class RpsServiceActorLoadSpec(_system: ActorSystem) extends TestKit(_system)
         }
       }
       callRightMore(0, 100, tokensSuffixAndRps)
-      callRightMore(700, 10, List(tokensSuffixAndRps.head))
+      callRightMore(100, 10, List(tokensSuffixAndRps.head))
 
       tokensSuffixAndRps.foreach {
         s => {
@@ -97,15 +97,14 @@ class RpsServiceActorLoadSpec(_system: ActorSystem) extends TestKit(_system)
 
       val timestampAfter = System.currentTimeMillis()
 
-      val callCount = 500 + 400 + 300 + 200 + 110
-
-      val averageMs =
-        (timestampAfter - timestampBefore) / callCount
-
-      val isAverageMsLessThenFive =
-        averageMs < 5
+      val callCount = tokensSuffixAndRps.sum + 10
+      val averageMs: Double =
+        (timestampAfter - timestampBefore).toDouble / callCount.toDouble
 
       println(s"average Ms per request = $averageMs")
+
+      val isAverageMsLessThenFive = averageMs < 5
+
       println(s"is average Ms less then five = $isAverageMsLessThenFive")
 
       serviceResult ! ShowResult()
